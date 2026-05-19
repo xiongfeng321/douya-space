@@ -1,0 +1,3 @@
+NEXTJS_ENV=development
+PARENT_EMAILS=parent@example.com
+MEDIA_PUBLIC_URL=https://media.example.com

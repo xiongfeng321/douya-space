@@ -1,0 +1,22 @@
+name = "douya-space"
+main = ".open-next/worker.js"
+compatibility_date = "2026-05-19"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "douya-space"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "douya-space"
+database_id = "replace-with-cloudflare-d1-database-id"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "douya-space-media"
+
+[vars]
+MEDIA_PUBLIC_URL = "https://media.example.com"
+PARENT_EMAILS = "parent@example.com"

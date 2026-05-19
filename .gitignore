@@ -1,0 +1,7 @@
+node_modules
+.next
+.open-next
+.wrangler
+.dev.vars
+cloudflare-env.d.ts
+codex-plugin-catalog.html
