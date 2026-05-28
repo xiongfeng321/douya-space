@@ -11,12 +11,7 @@ service = "douya-space"
 [[d1_databases]]
 binding = "DB"
 database_name = "douya-space"
-database_id = "replace-with-cloudflare-d1-database-id"
-
-[[r2_buckets]]
-binding = "MEDIA_BUCKET"
-bucket_name = "douya-space-media"
+database_id = "b0bbbada-9867-4bc3-8a06-9830656d1010"
 
 [vars]
-MEDIA_PUBLIC_URL = "https://media.example.com"
 PARENT_EMAILS = "parent@example.com"
