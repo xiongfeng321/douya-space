@@ -1,4 +1,4 @@
-import { getCloudflareEnv } from "@/lib/cloudflare";
+import { getCloudflareEnv, requireAdmin } from "@/lib/cloudflare";
 
 function safeName(name) {
   return name
@@ -9,6 +9,8 @@ function safeName(name) {
 
 export async function POST(request) {
   const env = await getCloudflareEnv();
+  const { response } = requireAdmin(request, env);
+  if (response) return response;
 
   if (!env.MEDIA_BUCKET) {
     return Response.json({ error: "R2 binding MEDIA_BUCKET is not configured" }, { status: 503 });

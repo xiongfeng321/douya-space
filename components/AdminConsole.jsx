@@ -73,7 +73,7 @@ async function compressImage(file, settings) {
   });
 }
 
-export default function AdminConsole({ initialWorks }) {
+export default function AdminConsole({ initialWorks, user }) {
   const [works, setWorks] = useState(initialWorks);
   const [form, setForm] = useState(emptyForm);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -81,6 +81,7 @@ export default function AdminConsole({ initialWorks }) {
   const [crop, setCrop] = useState({ zoom: 1, offsetX: 50, offsetY: 50, quality: 0.82 });
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
+  const isParent = Boolean(user?.isParent);
 
   const previewStyle = useMemo(() => {
     if (form.cover_image) return { "--cover": `url("${form.cover_image}")` };
@@ -149,6 +150,11 @@ export default function AdminConsole({ initialWorks }) {
   }
 
   async function saveWork(publishState = form.is_published) {
+    if (publishState && !isParent) {
+      setStatus("当前账号只能保存草稿，发布需要家长账号。");
+      return;
+    }
+
     setSaving(true);
     setStatus("正在保存...");
 
@@ -183,6 +189,11 @@ export default function AdminConsole({ initialWorks }) {
   }
 
   async function togglePublish(work) {
+    if (!isParent) {
+      setStatus("当前账号只能编辑草稿，发布和下线需要家长账号。");
+      return;
+    }
+
     const nextWork = { ...work, is_published: !work.is_published };
     try {
       await fetch(`/api/admin/works/${work.slug}`, {
@@ -197,6 +208,11 @@ export default function AdminConsole({ initialWorks }) {
   }
 
   async function removeWork(work) {
+    if (!isParent) {
+      setStatus("删除作品需要家长账号。");
+      return;
+    }
+
     const confirmed = window.confirm(`删除作品「${work.title_zh}」？`);
     if (!confirmed) return;
 
@@ -215,6 +231,7 @@ export default function AdminConsole({ initialWorks }) {
         <p className="eyebrow">Cloudflare Access Protected</p>
         <h1>作品发布台</h1>
         <p className="rich-text">管理台支持作品列表、编辑、下线、删除，并在浏览器内完成封面裁剪与 JPEG 压缩。</p>
+        <p className="muted">当前账号：{user?.email || "未知"} · 权限：{isParent ? "家长，可发布/下线/删除" : "儿童，只能保存草稿"}</p>
       </section>
 
       <section id="editor" className="editor-layout">
@@ -253,7 +270,7 @@ export default function AdminConsole({ initialWorks }) {
           <label className="form-field">封面色彩<input className="input" value={form.cover_style} onChange={(event) => updateField("cover_style", event.target.value)} /></label>
           <div className="action-row">
             <button className="button-secondary" type="submit" disabled={saving}>保存草稿</button>
-            <button className="button-primary" type="button" onClick={() => saveWork(true)} disabled={saving}>保存并发布</button>
+            <button className="button-primary" type="button" onClick={() => saveWork(true)} disabled={saving || !isParent}>保存并发布</button>
           </div>
           <p className="muted" role="status">{status}</p>
         </form>
@@ -291,8 +308,8 @@ export default function AdminConsole({ initialWorks }) {
               </span>
               <span className="row-actions">
                 <button className="small-button" type="button" onClick={() => editWork(work)}>编辑</button>
-                <button className="small-button" type="button" onClick={() => togglePublish(work)}>{work.is_published ? "下线" : "发布"}</button>
-                <button className="small-button danger" type="button" onClick={() => removeWork(work)}>删除</button>
+                <button className="small-button" type="button" onClick={() => togglePublish(work)} disabled={!isParent}>{work.is_published ? "下线" : "发布"}</button>
+                <button className="small-button danger" type="button" onClick={() => removeWork(work)} disabled={!isParent}>删除</button>
               </span>
             </article>
           ))}
