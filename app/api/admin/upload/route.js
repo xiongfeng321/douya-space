@@ -1,4 +1,5 @@
-import { getCloudflareEnv, requireAdmin } from "@/lib/cloudflare";
+import { requireAdmin } from "@/lib/auth";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 
 function safeName(name) {
   return name
@@ -9,7 +10,7 @@ function safeName(name) {
 
 export async function POST(request) {
   const env = await getCloudflareEnv();
-  const { response } = requireAdmin(request, env);
+  const { response } = await requireAdmin(request, env);
   if (response) return response;
 
   if (!env.MEDIA_BUCKET) {

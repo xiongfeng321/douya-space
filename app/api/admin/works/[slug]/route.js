@@ -1,10 +1,11 @@
-import { getCloudflareEnv, requireAdmin } from "@/lib/cloudflare";
+import { requireAdmin } from "@/lib/auth";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 import { deleteWork, getWork, prepareWork, upsertWork, validateWork } from "@/lib/works";
 
 export async function PATCH(request, { params }) {
   const { slug } = await params;
   const env = await getCloudflareEnv();
-  const { user, response } = requireAdmin(request, env);
+  const { user, response } = await requireAdmin(request, env);
   if (response) return response;
 
   const existing = await getWork(env, slug);
@@ -31,7 +32,7 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   const { slug } = await params;
   const env = await getCloudflareEnv();
-  const { user, response } = requireAdmin(request, env);
+  const { user, response } = await requireAdmin(request, env);
   if (response) return response;
   if (!user.isParent) {
     return Response.json({ error: "Only parent role can delete works" }, { status: 403 });

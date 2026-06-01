@@ -1,6 +1,8 @@
 import AdminConsole from "@/components/AdminConsole";
+import AdminLogin from "@/components/AdminLogin";
 import SiteHeader from "@/components/SiteHeader";
-import { getCloudflareEnv, getUserContext } from "@/lib/cloudflare";
+import { getAuthState, listUsers } from "@/lib/auth";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 import { listWorks } from "@/lib/works";
 import { headers } from "next/headers";
 
@@ -11,29 +13,24 @@ export const metadata = {
 export default async function AdminPage() {
   const env = await getCloudflareEnv();
   const requestHeaders = await headers();
-  const user = getUserContext({ headers: requestHeaders }, env);
+  const auth = await getAuthState({ headers: requestHeaders }, env);
 
-  if (!user.authenticated) {
+  if (!auth.authenticated) {
     return (
       <>
         <SiteHeader admin />
-        <main className="page-shell">
-          <section className="admin-hero">
-            <p className="eyebrow">Access Required</p>
-            <h1>管理台需要登录</h1>
-            <p className="rich-text">请先在 Cloudflare Zero Trust Access 中允许当前邮箱访问 /admin 和 /api/admin/*。</p>
-          </section>
-        </main>
+        <AdminLogin setupRequired={auth.setupRequired} parentEmails={auth.parentEmails} />
       </>
     );
   }
 
   const works = await listWorks(env);
+  const users = auth.user.isParent ? await listUsers(env) : [];
 
   return (
     <>
       <SiteHeader admin />
-      <AdminConsole initialWorks={works} user={user} />
+      <AdminConsole initialWorks={works} initialUsers={users} user={auth.user} />
     </>
   );
 }

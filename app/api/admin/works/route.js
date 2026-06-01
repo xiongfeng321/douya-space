@@ -1,9 +1,10 @@
-import { getCloudflareEnv, requireAdmin } from "@/lib/cloudflare";
+import { requireAdmin } from "@/lib/auth";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 import { listWorks, prepareWork, upsertWork, validateWork } from "@/lib/works";
 
 export async function GET(request) {
   const env = await getCloudflareEnv();
-  const { response } = requireAdmin(request, env);
+  const { response } = await requireAdmin(request, env);
   if (response) return response;
 
   const works = await listWorks(env);
@@ -13,7 +14,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   const env = await getCloudflareEnv();
-  const { user, response } = requireAdmin(request, env);
+  const { user, response } = await requireAdmin(request, env);
   if (response) return response;
 
   const payload = await request.json();
