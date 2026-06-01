@@ -12,6 +12,3 @@ service = "douya-space"
 binding = "DB"
 database_name = "douya-space"
 database_id = "b0bbbada-9867-4bc3-8a06-9830656d1010"
-
-[vars]
-PARENT_EMAILS = "parent@example.com"
